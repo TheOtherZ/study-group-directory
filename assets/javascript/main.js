@@ -1,5 +1,7 @@
 $(document).ready(function(){
 
+$('form').on('submit', function(e) { e.preventDefault(); });
+
 $('.hidden-code').click(function(e) {
     e.preventDefault();
     $(this).children('.gist').slideToggle();
@@ -58,10 +60,10 @@ function PythagorasEquirectangular(lat1, lon1, lat2, lon2) {
 var cities = [];
 var cityNames = [];
 
-$.getJSON('assets/json/campsites2.json').then(function(data) {
+$.getJSON('assets/json/campsitesfinal.json').then(function(data) {
     data.forEach(function(loc) {
       const coordString = loc.coordinates;
-      let values = coordString.split(" ");
+      let values = coordString.split(",");
 
       var lat = ConvertDMSToDD(parseFloat(values[0]));
       var lng = ConvertDMSToDD(parseFloat(values[1]));
@@ -69,11 +71,11 @@ $.getJSON('assets/json/campsites2.json').then(function(data) {
 
       cities.push(coords);
 
-      if(loc.state.length==0){
-        cityNames.push(loc.city+", "+loc.country);
-      } else {
-        cityNames.push(loc.city+", "+loc.state+", "+loc.country);
-      }
+      cityNames.push(
+        (loc.city.length > 0 ? loc.city + ", " : "") +
+        (loc.state.length > 0 ? loc.state + ", " : "") +
+        loc.country
+      );
 
 
   });
@@ -102,7 +104,7 @@ function NearestCities(latitude, longitude, maxRadius) {
     return a.dist - b.dist;
   });
 
-  $.getJSON('assets/json/campsites2.json').then(function(data) {
+  $.getJSON('assets/json/campsitesfinal.json').then(function(data) {
     $('#search-nearby').show();
     for (let i = 0; i < closest.length; i++){
       let loc = data[closest[i].index];
@@ -113,11 +115,11 @@ function NearestCities(latitude, longitude, maxRadius) {
         url = loc.url,
         coords = loc.coordinates;
       let location = '';
-      if(state.length==0){
-        location = city + ", " + country;
-      } else {
-        location = city + ", " + state + ", " + country;
-      }
+
+      location = (city.length > 0 ? city + ", " : "") +
+        (state.length > 0 ? state + ", " : "") +
+        country;
+
       $("#closeCamps").append(
         `
           <div class="alpha center">
@@ -138,7 +140,7 @@ function NearestCities(latitude, longitude, maxRadius) {
 }
 
 //full list of locations
-$.getJSON('assets/json/campsites2.json').then(function(data) {
+$.getJSON('assets/json/campsitesfinal.json').then(function(data) {
 
     data.forEach(function(loc) {
       const img = loc.photoUrl || "https://s3.amazonaws.com/freecodecamp/bannercropped.png",
@@ -148,12 +150,9 @@ $.getJSON('assets/json/campsites2.json').then(function(data) {
         url = loc.url;
         let location = '';
 
-        if(state.length==0){
-          location = city + ", " + country;
-        } else {
-          location = city + ", " + state + ", " + country;
-        }
-
+      location = (city.length > 0 ? city + ", " : "") +
+        (state.length > 0 ? state + ", " : "") +
+        country;
 
         $("#camps").append(
             `
